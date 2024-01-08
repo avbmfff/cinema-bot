@@ -1,5 +1,6 @@
 import logging
 from aiogram import Bot, Dispatcher, types
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 from functions import get_movie_link, get_movie_description
 from tokens import API_TOKEN
@@ -39,8 +40,10 @@ async def search_movies(message: types.Message):
     movie_data = await get_movie_description(query)
 
     if link and movie_data:
+        poster_url = movie_data['poster']['url']
         response_text = (
             f"*{movie_data['name']}* | {movie_data['enName']}\n"
+            f"*Рейтинг IMDb:* {movie_data['rating']['imdb']}\n"
             f"\n"
             f"*Тип:* {movie_data['type'].capitalize()}\n"
             f"*Описание:* {movie_data['description']}\n"
@@ -49,13 +52,17 @@ async def search_movies(message: types.Message):
             f"*Жанры:* {', '.join(genre['name'] for genre in movie_data['genres'])}\n"
             f"*Страна выпуска:* {', '.join(country['name'] for country in movie_data['countries'])}\n"
             f"*Год выпуска:* {', '.join(str(year['start']) + '-' + str(year['end']) for year in movie_data['releaseYears']) if movie_data['releaseYears'] else '-'}\n"
-            f"\n"
-            f"*Где посмотреть:* {link}"
         )
+
+        keyboard = InlineKeyboardMarkup()
+        button = InlineKeyboardButton(text="Перейти к просмотру", url=link)
+        keyboard.add(button)
+
+        await bot.send_photo(message.chat.id, poster_url, caption=response_text, parse_mode='Markdown',
+                             reply_markup=keyboard)
     else:
         response_text = "Извините, ничего не найдено."
-
-    await message.answer(response_text, parse_mode='Markdown')
+        await bot.send_message(message.chat.id, response_text)
 
 
 if __name__ == '__main__':
