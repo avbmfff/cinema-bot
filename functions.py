@@ -1,4 +1,5 @@
 import aiohttp
+import httpx
 from bs4 import BeautifulSoup
 
 from tokens import KINOPOISK_API_KEY
@@ -28,16 +29,22 @@ async def get_movie_description(query):
 
 async def fetch_movies(query):
     url = f"https://e2.moekino42.net/search?filter=1&query={query.replace(' ', '+')}"
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url) as response:
-            return await response.text()
+    async with httpx.AsyncClient() as client:
+        response = await client.get(url)
+        return response.text
+
+
+async def parse_movies(response_text):
+    soup = BeautifulSoup(response_text, 'html.parser')
+    films = (soup.find('div', attrs={'class': 'film-grid'})
+             .findAll("div", attrs={'class': 'film-grid-item'}, recursive=False))
+
+    return films
 
 
 async def get_movie_link(query):
-    response = await fetch_movies(query)
-    soup = BeautifulSoup(response, 'html.parser')
-    films = (soup.find('div', attrs={'class': 'film-grid'})
-             .findAll("div", attrs={'class': 'film-grid-item'}, recursive=False))
+    response_text = await fetch_movies(query)
+    films = await parse_movies(response_text)
 
     if not films:
         return None
