@@ -16,7 +16,7 @@ cursor = conn.cursor()
 
 
 @dp.message_handler(commands=['start'])
-async def start(message: types.Message):
+async def start(message: types.Message) -> None:
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     buttons = [
         types.KeyboardButton(text="/🆘"),
@@ -33,7 +33,7 @@ async def start(message: types.Message):
 
 
 @dp.message_handler(lambda message: message.text.lower() in ['/help', '/🆘'])
-async def help_command(message: types.Message):
+async def help_command(message: types.Message) -> None:
     help_text = "🌟 *Доступные команды:*\n\n"
     help_text += "/start - Начать взаимодействие с ботом\n"
     help_text += "/help - Показать список доступных команд\n"
@@ -43,7 +43,7 @@ async def help_command(message: types.Message):
     await message.answer(help_text, parse_mode='Markdown')
 
 
-def create_history_table(user_id):
+def create_history_table(user_id: int) -> None:
     cursor.execute(f'''
         CREATE TABLE IF NOT EXISTS search_history_{user_id} (
             query TEXT,
@@ -53,7 +53,7 @@ def create_history_table(user_id):
 
 
 @dp.message_handler(lambda message: message.text.lower() in ['/history', '/🕰'])
-async def history_command(message: types.Message):
+async def history_command(message: types.Message) -> None:
     user_id = message.from_user.id
 
     create_history_table(user_id)
@@ -72,7 +72,7 @@ async def history_command(message: types.Message):
 
 
 @dp.message_handler(lambda message: message.text.lower() in ['/stats', '/📊'])
-async def stats_command(message: types.Message):
+async def stats_command(message: types.Message) -> None:
     user_id = message.from_user.id
 
     create_history_table(user_id)
@@ -91,7 +91,7 @@ async def stats_command(message: types.Message):
 
 
 @dp.message_handler(content_types=['text'])
-async def search_movies(message: types.Message):
+async def search_movies(message: types.Message) -> None:
     query = message.text.upper()
     user_id = message.from_user.id
     create_history_table(user_id)
