@@ -35,10 +35,10 @@ async def start(message: types.Message) -> None:
 @dp.message_handler(lambda message: message.text.lower() in ['/help', '/🆘'])
 async def help_command(message: types.Message) -> None:
     help_text = "🌟 *Доступные команды:*\n\n"
-    help_text += "/start - Начать взаимодействие с ботом\n"
-    help_text += "/help - Показать список доступных команд\n"
-    help_text += "/history - Показать историю поисковых запросов\n"
-    help_text += "/stats - Показать статистику по запросам\n"
+    help_text += "/start- Начать взаимодействие с ботом\n"
+    help_text += "/help или /🆘 - Показать список доступных команд\n"
+    help_text += "/history или /🕰 - Показать историю поисковых запросов\n"
+    help_text += "/stats или /📊 - Показать статистику по запросам\n"
     help_text += "\n*Чтобы найти фильм/сериал и информацию о нём, просто отправьте его название.*\n"
     await message.answer(help_text, parse_mode='Markdown')
 
@@ -121,8 +121,8 @@ async def search_movies(message: types.Message) -> None:
         await bot.send_photo(message.chat.id, poster_url, caption=response_text, parse_mode='Markdown',
                              reply_markup=keyboard)
 
-        cursor.execute(f'INSERT INTO search_history_{user_id} (query, search_date) VALUES (?, datetime("now"))',
-                       (query,))
+        cursor.execute(f'INSERT INTO search_history_{user_id} (query, search_date) VALUES (?, datetime("now"))', (movie_data['name'],))
+
         conn.commit()
     else:
         response_text = "Извините, ничего не найдено."
