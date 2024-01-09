@@ -1,0 +1,4 @@
+aiogram==2.25.2
+httpx==0.26.0
+beautifulsoup4
+aiohttp==3.8.6
